@@ -1,11 +1,20 @@
+import { db } from '../db';
+import { categoriesTable } from '../db/schema';
 import { type Category } from '../schema';
+import { eq, asc } from 'drizzle-orm';
 
 export const getCategories = async (activeOnly: boolean = true): Promise<Category[]> => {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching news categories:
-  // - Return all categories ordered by sort_order ASC
-  // - Filter by is_active = true if activeOnly parameter is true
-  // - Include both English and Chinese names for i18n support
-  
-  return [];
+  try {
+    // Build query with conditional filtering
+    const baseQuery = db.select().from(categoriesTable).orderBy(asc(categoriesTable.sort_order));
+    
+    const results = activeOnly 
+      ? await baseQuery.where(eq(categoriesTable.is_active, true)).execute()
+      : await baseQuery.execute();
+    
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    throw error;
+  }
 };
